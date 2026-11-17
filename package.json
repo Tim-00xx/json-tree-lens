@@ -1,0 +1,124 @@
+{
+  "name": "json-tree-lens",
+  "displayName": "JSON Tree Lens",
+  "description": "清爽直观的 VS Code 树形 JSON 阅读器，支持标题栏一键切换、JSON Path 复制与实时同步",
+  "version": "1.0.0",
+  "publisher": "tim-00xx",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tim-00xx/json-tree-lens.git"
+  },
+  "homepage": "https://github.com/Tim-00xx/json-tree-lens#readme",
+  "bugs": {
+    "url": "https://github.com/Tim-00xx/json-tree-lens/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Formatters",
+    "Other"
+  ],
+  "keywords": [
+    "json",
+    "json-viewer",
+    "json-tree",
+    "tree-view",
+    "custom-editor"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onCustomEditor:jsonTreeLens.preview",
+    "onCommand:jsonTreeLens.open",
+    "onCommand:jsonTreeLens.openSource",
+    "onCommand:jsonTreeLens.toggle"
+  ],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "jsonTreeLens.preview",
+        "displayName": "JSON Tree Lens",
+        "selector": [
+          {
+            "filenamePattern": "*.json"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "commands": [
+      {
+        "command": "jsonTreeLens.open",
+        "title": "JSON Tree Lens: 打开树形视图",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "jsonTreeLens.openSource",
+        "title": "JSON Tree Lens: 切换回源码视图",
+        "icon": "$(code)"
+      },
+      {
+        "command": "jsonTreeLens.toggle",
+        "title": "JSON Tree Lens: 切换树形视图 / 源码视图",
+        "icon": "$(list-tree)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "jsonTreeLens.open",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "(editorLangId == json || resourceExtname == .json) && activeCustomEditorId != jsonTreeLens.preview"
+      },
+      {
+        "command": "jsonTreeLens.openSource",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "activeCustomEditorId == jsonTreeLens.preview"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "jsonTreeLens.open",
+          "when": "resourceExtname == .json && activeCustomEditorId != jsonTreeLens.preview",
+          "group": "navigation"
+        },
+        {
+          "command": "jsonTreeLens.openSource",
+          "when": "activeCustomEditorId == jsonTreeLens.preview",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "jsonTreeLens.open",
+          "when": "resourceExtname == .json",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run typecheck && npm run build && npx @vscode/vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-json-tree": "^0.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.5.2"
+  }
+}

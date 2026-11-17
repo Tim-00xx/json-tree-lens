@@ -1,0 +1,449 @@
+:root {
+  --jlab-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --jlab-font-size: 13.5px;
+  --jlab-line-height: 1.65;
+
+  /* 跟随 VS Code 原生主题 CSS 变量（默认适配暗色 / 高对比度主题） */
+  --jlab-bg: var(--vscode-editor-background, #1e1e1e);
+  --jlab-fg: var(--vscode-editor-foreground, #d4d4d4);
+  --jlab-key-color: #9cdcfe;
+  --jlab-string-color: #ce9178;
+  --jlab-primitive-color: #b5cea8;
+  --jlab-item-string-color: var(--vscode-descriptionForeground, #858585);
+  --jlab-arrow-color: var(--vscode-icon-foreground, #cccccc);
+
+  --jlab-toolbar-bg: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+  --jlab-toolbar-border: var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  --jlab-btn-bg: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.15));
+  --jlab-btn-hover-bg: var(--vscode-button-secondaryHoverBackground, rgba(128, 128, 128, 0.25));
+  --jlab-btn-active-bg: var(--vscode-toolbar-activeBackground, rgba(128, 128, 128, 0.35));
+  --jlab-btn-border: var(--vscode-contrastBorder, rgba(128, 128, 128, 0.35));
+  --jlab-btn-fg: var(--vscode-foreground, #cccccc);
+  --jlab-input-bg: var(--vscode-input-background, #3c3c3c);
+  --jlab-input-border: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+  --jlab-row-hover: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.06));
+  --jlab-highlight-bg: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 179, 8, 0.32));
+  --jlab-highlight-fg: var(--vscode-editor-foreground, #fef08a);
+
+  --jlab-menu-bg: var(--vscode-menu-background, #252526);
+  --jlab-menu-border: var(--vscode-menu-border, #454545);
+  --jlab-menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --jlab-menu-hover: var(--vscode-list-hoverBackground, #2a2d2e);
+
+  --jlab-error-bg: var(--vscode-inputValidation-errorBackground, rgba(185, 28, 28, 0.16));
+  --jlab-error-border: var(--vscode-inputValidation-errorBorder, rgba(248, 113, 113, 0.45));
+  --jlab-error-fg: var(--vscode-errorForeground, #fca5a5);
+  --jlab-error-code-bg: rgba(0, 0, 0, 0.28);
+  --jlab-toast-bg: var(--vscode-notifications-background, #323233);
+  --jlab-toast-fg: var(--vscode-notifications-foreground, #f3f4f6);
+}
+
+/* 当 VS Code 使用浅色或浅色高对比度主题时自动切换高对比 token 配色 */
+body.vscode-light,
+body.vscode-high-contrast-light {
+  --jlab-key-color: #0451a5;
+  --jlab-string-color: #a31515;
+  --jlab-primitive-color: #098658;
+  --jlab-item-string-color: var(--vscode-descriptionForeground, #616161);
+  --jlab-arrow-color: var(--vscode-icon-foreground, #424242);
+
+  --jlab-row-hover: var(--vscode-list-hoverBackground, rgba(0, 0, 0, 0.05));
+  --jlab-highlight-bg: var(--vscode-editor-findMatchHighlightBackground, #fff3b0);
+  --jlab-highlight-fg: var(--vscode-editor-foreground, #111827);
+  --jlab-menu-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --jlab-error-code-bg: rgba(0, 0, 0, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+  overflow-y: auto;
+}
+
+.jtl-root {
+  min-height: 100vh;
+  background-color: var(--jlab-bg);
+  color: var(--jlab-fg);
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部极简固定工具栏 */
+.jtl-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 14px;
+  background-color: var(--jlab-toolbar-bg);
+  border-bottom: 1px solid var(--jlab-toolbar-border);
+  user-select: none;
+}
+
+.jtl-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.jtl-file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--jlab-fg);
+  opacity: 0.88;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jtl-dirty-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.jtl-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 180px;
+  max-width: 300px;
+}
+
+.jtl-search-input {
+  width: 100%;
+  height: 26px;
+  padding: 0 72px 0 9px;
+  border-radius: 4px;
+  border: 1px solid var(--jlab-input-border);
+  background-color: var(--jlab-input-bg);
+  color: var(--jlab-fg);
+  font-family: var(--jlab-font-family);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+.jtl-search-input:focus {
+  border-color: var(--jlab-key-color);
+}
+
+.jtl-search-meta {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--jlab-item-string-color);
+}
+
+.jtl-search-clear {
+  border: none;
+  background: transparent;
+  color: var(--jlab-item-string-color);
+  cursor: pointer;
+  padding: 0 3px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.jtl-search-clear:hover {
+  color: var(--jlab-fg);
+}
+
+.jtl-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.jtl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 4px;
+  border: 1px solid var(--jlab-btn-border);
+  background-color: var(--jlab-btn-bg);
+  color: var(--jlab-btn-fg);
+  font-family: var(--jlab-font-family);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.jtl-btn:hover {
+  background-color: var(--jlab-btn-hover-bg);
+}
+
+.jtl-btn:active {
+  background-color: var(--jlab-btn-active-bg);
+}
+
+.jtl-btn.is-active {
+  border-color: var(--jlab-key-color);
+  color: var(--jlab-key-color);
+}
+
+.jtl-btn-divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--jlab-toolbar-border);
+  margin: 0 2px;
+}
+
+/* 语法错误横幅 */
+.jtl-error-banner {
+  margin: 12px 16px 4px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--jlab-error-border);
+  background-color: var(--jlab-error-bg);
+  color: var(--jlab-error-fg);
+}
+
+.jtl-error-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.jtl-error-title {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.jtl-error-detail {
+  font-size: 12.5px;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.jtl-error-snippet {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background-color: var(--jlab-error-code-bg);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* 空状态 */
+.jtl-empty-state {
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--jlab-item-string-color);
+  font-size: 13px;
+}
+
+/* 树容器与经典树形排版核心样式 */
+.jtl-json-tree-container {
+  flex: 1;
+  padding: 8px 14px 36px;
+  background-color: var(--jlab-bg);
+  overflow-x: auto;
+}
+
+.jtl-json-tree-container ul {
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+}
+
+.jtl-json-tree-container ul li {
+  line-height: var(--jlab-line-height);
+}
+
+/* 关键细节：将外层 label 字体置 0 以隐藏默认冒号 ':'，并恢复内部 .jlab-key 字体大小 */
+.jtl-json-tree-container ul li > label {
+  font-size: 0 !important;
+  line-height: var(--jlab-line-height);
+  margin: 0 !important;
+  padding: 0 !important;
+  text-indent: 0 !important;
+  vertical-align: baseline;
+}
+
+.jtl-json-tree-container ul li > label .jlab-key {
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+  font-weight: 700;
+  color: var(--jlab-key-color);
+  margin-right: 8px;
+  display: inline;
+  border-radius: 3px;
+  padding: 0 2px;
+  margin-left: -2px;
+  transition: background-color 100ms ease;
+}
+
+.jtl-json-tree-container ul li > label .jlab-key.is-leaf {
+  cursor: pointer;
+}
+
+.jtl-json-tree-container ul li > label .jlab-key:hover {
+  background-color: var(--jlab-row-hover);
+}
+
+.jlab-value {
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 3px;
+  cursor: context-menu;
+}
+
+.jlab-value-string {
+  color: var(--jlab-string-color);
+}
+
+.jlab-value-number,
+.jlab-value-boolean,
+.jlab-value-null {
+  color: var(--jlab-primitive-color);
+}
+
+.jlab-value-other {
+  color: var(--jlab-fg);
+}
+
+.jlab-item-string {
+  font-family: var(--jlab-font-family);
+  font-size: var(--jlab-font-size);
+  line-height: var(--jlab-line-height);
+  font-style: italic;
+  color: var(--jlab-item-string-color);
+  user-select: none;
+}
+
+.jlab-arrow-glyph {
+  display: inline-block;
+  color: var(--jlab-arrow-color);
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+}
+
+.jlab-highlight {
+  background-color: var(--jlab-highlight-bg);
+  color: var(--jlab-highlight-fg);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* 右键上下文菜单 */
+.jtl-context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--jlab-menu-border);
+  background-color: var(--jlab-menu-bg);
+  box-shadow: var(--jlab-menu-shadow);
+  user-select: none;
+}
+
+.jtl-context-header {
+  padding: 5px 10px 4px;
+  font-size: 11px;
+  color: var(--jlab-item-string-color);
+  border-bottom: 1px solid var(--jlab-toolbar-border);
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jtl-context-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--jlab-fg);
+  font-family: var(--jlab-font-family);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.jtl-context-item:hover {
+  background-color: var(--jlab-menu-hover);
+}
+
+.jtl-context-preview {
+  font-size: 11px;
+  color: var(--jlab-item-string-color);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 复制提示 Toast */
+.jtl-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  padding: 7px 12px;
+  border-radius: 5px;
+  background-color: var(--jlab-toast-bg);
+  color: var(--jlab-toast-fg);
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
