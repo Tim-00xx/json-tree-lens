@@ -88,8 +88,7 @@ function resolveTargetUri(uri?: vscode.Uri): vscode.Uri | undefined {
 type WebviewToExtensionMessage =
   | { type: 'ready' }
   | { type: 'copy'; text: string; label?: string }
-  | { type: 'openSource' }
-  | { type: 'formatDocument' };
+  | { type: 'openSource' };
 
 class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
   constructor(private readonly context: vscode.ExtensionContext) {}
@@ -161,10 +160,6 @@ class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
             await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
             break;
           }
-          case 'formatDocument': {
-            await this.formatJsonDocument(document);
-            break;
-          }
         }
       }
     );
@@ -177,36 +172,6 @@ class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
       saveDocDisposable.dispose();
       messageDisposable.dispose();
     });
-  }
-
-  private async formatJsonDocument(document: vscode.TextDocument): Promise<void> {
-    const rawText = document.getText();
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      void vscode.window.showErrorMessage(`无法格式化：当前 JSON 存在语法错误 (${msg})`);
-      return;
-    }
-
-    const formatted = `${JSON.stringify(parsed, null, 2)}\n`;
-    if (formatted === rawText) {
-      vscode.window.setStatusBarMessage('JSON 已是标准格式', 2000);
-      return;
-    }
-
-    const fullRange = new vscode.Range(
-      document.positionAt(0),
-      document.positionAt(rawText.length)
-    );
-    const edit = new vscode.WorkspaceEdit();
-    edit.replace(document.uri, fullRange, formatted);
-    const applied = await vscode.workspace.applyEdit(edit);
-    if (applied) {
-      await document.save();
-      vscode.window.setStatusBarMessage('JSON 已重新格式化并保存', 2500);
-    }
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
