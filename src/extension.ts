@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(OPEN_COMMAND, async (uri?: vscode.Uri) => {
       const targetUri = resolveTargetUri(uri);
       if (!targetUri) {
-        vscode.window.showWarningMessage('请先打开或选择一个 JSON 文件。');
+        vscode.window.showWarningMessage('Please open or select a JSON file first.');
         return;
       }
       await vscode.commands.executeCommand('vscode.openWith', targetUri, VIEW_TYPE);
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(TOGGLE_COMMAND, async (uri?: vscode.Uri) => {
       const targetUri = resolveTargetUri(uri);
       if (!targetUri) {
-        vscode.window.showWarningMessage('请先打开或选择一个 JSON 文件。');
+        vscode.window.showWarningMessage('Please open or select a JSON file first.');
         return;
       }
       const activeInput = vscode.window.tabGroups.activeTabGroup.activeTab?.input;
