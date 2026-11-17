@@ -1,24 +1,31 @@
 # JSON Tree Lens
 
-原生跟随 VS Code 配色主题的树形 JSON 阅读器，采用清晰无冒号的呼吸间距排版，不覆盖 VS Code 默认 JSON 文本编辑器，支持标题栏按钮与快捷键一键切换。
+**English** | [简体中文](https://github.com/Tim-00xx/json-tree-lens/blob/main/README.zh-CN.md)
 
-## 功能特性
+A tree viewer for JSON that inherits your VS Code color theme natively. It uses a clean, colon-free layout with breathing room between keys and values, never replaces VS Code's built-in JSON text editor, and lets you switch between tree and source with one click.
 
-- **原生跟随 VS Code 主题配色**：
-  - 自动适配当前 VS Code 的浅色、深色与高对比度主题（无需手动切换）
-  - 清晰的键名、字符串、数字/布尔/null 语法高亮，无衬线字体 (`13.5px`，行高 `1.65`)
-  - 隐藏键名后默认冒号 `:`，保留 `8px` 呼吸间距
-  - 清晰统计标签：`[] N items` / `[] 1 item`、`{} N keys` / `{} 1 key`
-- **快捷交互与切换**：
-  - 支持默认快捷键 `Ctrl+Alt+J`（macOS 为 `Cmd+Alt+J`）在**源码编辑器**与**树形视图**之间来回切换
-  - 默认展开前 2 层，大数组自动折叠避免卡顿
-  - 顶部极简固定工具栏：搜索定位与高亮、全部展开、折叠到第 2 层、重新格式化 JSON、切换回源码
-  - 点击叶子键名（或 Alt+点击任意键名）复制 JSON Path（如 `cases[0].accept[0]`）；右键菜单支持复制 JSON Path、节点值与键名
-  - 实时监听文档修改并同步刷新；JSON 语法出错时在顶部展示精确行号、列号与错误原因提示，不白屏
+## Features
 
-## 使用方法
+- **Native VS Code theming**
+  - Follows your current light, dark, or high-contrast theme automatically — no manual toggle
+  - Clear syntax coloring for keys, strings, and numbers/booleans/null; sans-serif font at `13.5px` with `1.65` line height
+  - The default colon `:` after each key is hidden, leaving an `8px` breathing gap instead
+  - Readable collection badges: `[] N items` / `[] 1 item`, `{} N keys` / `{} 1 key`
+- **Fast interaction and switching**
+  - Press `Ctrl+Alt+J` (`Cmd+Alt+J` on macOS) to toggle between the **source editor** and the **tree view**
+  - Opens with the first 2 levels expanded; large arrays collapse automatically to keep the first paint fast
+  - Minimal fixed toolbar: search with highlighting, **Expand All**, **Collapse All**, and **Back to Source**
+  - Click a leaf key (or `Alt`-click any key) to copy its JSON Path (e.g. `cases[0].accept[0]`); the context menu copies the JSON Path, the node value, or the key name
+  - Watches the document and refreshes live; on invalid JSON it shows the exact line, column, and error reason at the top instead of a blank screen
 
-1. 在 VS Code 中打开任意 `.json` 文件。
-2. 按 **`Ctrl+Alt+J`**（macOS：**`Cmd+Alt+J`**），或点击编辑器右上角标题栏的 `$(list-tree)` 图标切换到树形视图。
-3. 再次按 **`Ctrl+Alt+J`**（macOS：**`Cmd+Alt+J`**），或点击顶部工具栏 / 标题栏的 **切换回源码** 按钮，即可切回默认源码编辑器。
-4. 如需自定义快捷键，可在 VS Code 键盘快捷方式中搜索 `JSON Tree Lens`。
+## Usage
+
+1. Open any `.json` file in VS Code.
+2. Press **`Ctrl+Alt+J`** (macOS: **`Cmd+Alt+J`**), or click the `$(list-tree)` icon in the editor title bar, to switch to the tree view.
+3. Press **`Ctrl+Alt+J`** again, or click **Back to Source** in the toolbar / title bar, to return to the default text editor.
+4. To change the shortcut, open VS Code Keyboard Shortcuts and search for `JSON Tree Lens`.
+
+## Localization
+
+- English (this page)
+- [简体中文 / Chinese (Simplified)](https://github.com/Tim-00xx/json-tree-lens/blob/main/README.zh-CN.md)

@@ -15,7 +15,7 @@ import type {
 } from 'react-json-tree';
 import type { Base16Theme, StylingConfig } from 'react-base16-styling';
 
-type ExpandMode = 'level2' | 'all';
+type ExpandMode = 'default' | 'all' | 'none';
 
 interface VsCodeApi {
   postMessage(message: unknown): void;
@@ -440,7 +440,7 @@ function getValueClassName(value: unknown): string {
 }
 
 export function App(): React.ReactElement {
-  const [expandMode, setExpandMode] = useState<ExpandMode>('level2');
+  const [expandMode, setExpandMode] = useState<ExpandMode>('default');
   const [expandRevision, setExpandRevision] = useState<number>(0);
 
   const [fileName, setFileName] = useState<string>('JSON Preview');
@@ -565,13 +565,9 @@ export function App(): React.ReactElement {
     setExpandRevision((prev) => prev + 1);
   }, []);
 
-  const handleCollapseToLevel2 = useCallback(() => {
-    setExpandMode('level2');
+  const handleCollapseAll = useCallback(() => {
+    setExpandMode('none');
     setExpandRevision((prev) => prev + 1);
-  }, []);
-
-  const handleFormatDocument = useCallback(() => {
-    vscodeApi?.postMessage({ type: 'formatDocument' });
   }, []);
 
   const handleOpenSource = useCallback(() => {
@@ -596,6 +592,9 @@ export function App(): React.ReactElement {
     (keyPath, data, level) => {
       if (searchQuery.trim() !== '') {
         return searchIndex.expandPaths.has(serializeKeyPath(keyPath));
+      }
+      if (expandMode === 'none') {
+        return false;
       }
       if (expandMode === 'all') {
         return true;
@@ -754,23 +753,14 @@ export function App(): React.ReactElement {
           </button>
           <button
             type="button"
-            className={`jtl-btn${expandMode === 'level2' ? ' is-active' : ''}`}
-            onClick={handleCollapseToLevel2}
-            title="折叠到第 2 层（默认视图）"
+            className={`jtl-btn${expandMode === 'none' ? ' is-active' : ''}`}
+            onClick={handleCollapseAll}
+            title="折叠所有节点"
           >
-            折叠到第 2 层
+            全部折叠
           </button>
 
           <span className="jtl-btn-divider" />
-
-          <button
-            type="button"
-            className="jtl-btn"
-            onClick={handleFormatDocument}
-            title="将当前 JSON 文档格式化为 2 空格缩进并保存"
-          >
-            重新格式化
-          </button>
 
           <button
             type="button"

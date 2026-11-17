@@ -3,6 +3,7 @@
 src/**
 webview/**
 node_modules/**
+.workbuddy/**
 .gitignore
 tsconfig.json
 esbuild.js
