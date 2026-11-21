@@ -16,6 +16,7 @@ import type {
 import type { Base16Theme, StylingConfig } from 'react-base16-styling';
 
 type ExpandMode = 'default' | 'all' | 'none';
+type Locale = 'en' | 'zh';
 
 interface VsCodeApi {
   postMessage(message: unknown): void;
@@ -30,6 +31,131 @@ interface ExtensionUpdateMessage {
   text: string;
   fileName?: string;
   isDirty?: boolean;
+  locale?: Locale;
+  isMac?: boolean;
+}
+
+interface UiMessages {
+  unsavedChanges: string;
+  searchPlaceholder: string;
+  matchCount: (count: number) => string;
+  clearSearch: string;
+  expandAll: string;
+  expandAllTitle: string;
+  collapseAll: string;
+  collapseAllTitle: string;
+  backToSource: (shortcut: string) => string;
+  backToSourceTitle: (shortcut: string) => string;
+  syntaxErrorTitle: (line: number, column: number) => string;
+  fixInSource: string;
+  loading: string;
+  emptyFile: string;
+  copied: (preview: string, label?: string) => string;
+  keyTooltipExpandable: (jsonPath: string) => string;
+  keyTooltipLeaf: (jsonPath: string) => string;
+  valueTooltip: (jsonPath: string) => string;
+  copyJsonPath: string;
+  copyJsonPathLabel: string;
+  copyNodeValue: string;
+  copyNodeValueLabel: string;
+  copyPlainText: string;
+  copyPlainTextLabel: string;
+  copyKeyName: string;
+  copyKeyNameLabel: string;
+}
+
+const I18N: Record<Locale, UiMessages> = {
+  en: {
+    unsavedChanges: 'Unsaved changes',
+    searchPlaceholder: 'Search keys or values…',
+    matchCount: (count) => (count === 1 ? '1 match' : `${count} matches`),
+    clearSearch: 'Clear search',
+    expandAll: 'Expand All',
+    expandAllTitle: 'Expand all nodes',
+    collapseAll: 'Collapse All',
+    collapseAllTitle: 'Collapse all nodes',
+    backToSource: (shortcut) => `Back to Source (${shortcut})`,
+    backToSourceTitle: (shortcut) =>
+      `Switch back to VS Code source editor (${shortcut})`,
+    syntaxErrorTitle: (line, column) =>
+      `JSON Syntax Error (Line ${line}, Column ${column})`,
+    fixInSource: 'Fix in Source',
+    loading: 'Loading JSON…',
+    emptyFile:
+      'This JSON file is empty. Edit it in source view for live preview.',
+    copied: (preview, label) =>
+      label ? `Copied ${label}: ${preview}` : `Copied: ${preview}`,
+    keyTooltipExpandable: (jsonPath) =>
+      `Path: ${jsonPath} (Alt+Click or right-click to copy)`,
+    keyTooltipLeaf: (jsonPath) =>
+      `Path: ${jsonPath} (Click to copy path, right-click for more)`,
+    valueTooltip: (jsonPath) =>
+      `Path: ${jsonPath} (Right-click to copy path or value)`,
+    copyJsonPath: 'Copy JSON Path',
+    copyJsonPathLabel: 'JSON Path',
+    copyNodeValue: 'Copy Value (JSON)',
+    copyNodeValueLabel: 'Value (JSON)',
+    copyPlainText: 'Copy Plain Text (no quotes)',
+    copyPlainTextLabel: 'Plain Text',
+    copyKeyName: 'Copy Key Name',
+    copyKeyNameLabel: 'Key Name',
+  },
+  zh: {
+    unsavedChanges: '未保存的修改',
+    searchPlaceholder: '搜索键名或值…',
+    matchCount: (count) => `${count} 处`,
+    clearSearch: '清空搜索',
+    expandAll: '全部展开',
+    expandAllTitle: '展开所有节点',
+    collapseAll: '全部折叠',
+    collapseAllTitle: '折叠所有节点',
+    backToSource: (shortcut) => `切换回源码 (${shortcut})`,
+    backToSourceTitle: (shortcut) =>
+      `切换回 VS Code 默认文本源码编辑器 (${shortcut})`,
+    syntaxErrorTitle: (line, column) =>
+      `JSON 语法错误（第 ${line} 行，第 ${column} 列）`,
+    fixInSource: '前往源码修复',
+    loading: '正在加载 JSON 数据…',
+    emptyFile: '当前 JSON 文件为空，可在源码视图中编辑后实时预览。',
+    copied: (preview, label) =>
+      label ? `已复制 ${label}: ${preview}` : `已复制: ${preview}`,
+    keyTooltipExpandable: (jsonPath) =>
+      `路径: ${jsonPath}（Alt+点击或右键复制路径/值）`,
+    keyTooltipLeaf: (jsonPath) =>
+      `路径: ${jsonPath}（点击复制路径，右键更多选项）`,
+    valueTooltip: (jsonPath) => `路径: ${jsonPath}（右键复制路径或值）`,
+    copyJsonPath: '复制 JSON Path',
+    copyJsonPathLabel: 'JSON Path',
+    copyNodeValue: '复制节点值 (JSON)',
+    copyNodeValueLabel: '节点值 (JSON)',
+    copyPlainText: '复制纯文本（无引号）',
+    copyPlainTextLabel: '纯文本值',
+    copyKeyName: '复制键名',
+    copyKeyNameLabel: '键名',
+  },
+};
+
+function detectInitialLocale(): Locale {
+  if (typeof document !== 'undefined') {
+    const lang = (document.documentElement.lang || '').toLowerCase();
+    if (lang.startsWith('zh')) {
+      return 'zh';
+    }
+    if (lang) {
+      return 'en';
+    }
+  }
+  if (typeof navigator !== 'undefined') {
+    return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+  }
+  return 'en';
+}
+
+function detectInitialIsMac(): boolean {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+  return /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
 }
 
 interface JsonSyntaxErrorInfo {
@@ -443,6 +569,8 @@ export function App(): React.ReactElement {
   const [expandMode, setExpandMode] = useState<ExpandMode>('default');
   const [expandRevision, setExpandRevision] = useState<number>(0);
 
+  const [locale, setLocale] = useState<Locale>(detectInitialLocale);
+  const [isMac, setIsMac] = useState<boolean>(detectInitialIsMac);
   const [fileName, setFileName] = useState<string>('JSON Preview');
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [jsonData, setJsonData] = useState<unknown>(undefined);
@@ -458,6 +586,8 @@ export function App(): React.ReactElement {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
   const toastTimerRef = useRef<number | null>(null);
+  const t = I18N[locale];
+  const shortcutLabel = isMac ? 'Cmd+Alt+J' : 'Ctrl+Alt+J';
 
   const showToast = useCallback((message: string) => {
     setToastMessage(message);
@@ -480,11 +610,9 @@ export function App(): React.ReactElement {
       const preview = text.replace(/\s+/g, ' ').trim();
       const shortPreview =
         preview.length > 44 ? `${preview.slice(0, 43)}…` : preview;
-      showToast(
-        label ? `已复制 ${label}: ${shortPreview}` : `已复制: ${shortPreview}`
-      );
+      showToast(t.copied(shortPreview, label));
     },
-    [showToast]
+    [showToast, t]
   );
 
   // 搜索防抖
@@ -503,6 +631,12 @@ export function App(): React.ReactElement {
         return;
       }
 
+      if (msg.locale === 'en' || msg.locale === 'zh') {
+        setLocale(msg.locale);
+      }
+      if (typeof msg.isMac === 'boolean') {
+        setIsMac(msg.isMac);
+      }
       if (msg.fileName) {
         setFileName(msg.fileName);
       }
@@ -668,13 +802,13 @@ export function App(): React.ReactElement {
           className={`jlab-key${expandable ? '' : ' is-leaf'}`}
           title={
             expandable
-              ? `路径: ${jsonPath}（Alt+点击或右键复制路径/值）`
-              : `路径: ${jsonPath}（点击复制路径，右键更多选项）`
+              ? t.keyTooltipExpandable(jsonPath)
+              : t.keyTooltipLeaf(jsonPath)
           }
           onClick={(e) => {
             if (!expandable || e.altKey || e.ctrlKey || e.metaKey) {
               e.stopPropagation();
-              copyText(jsonPath, 'JSON Path');
+              copyText(jsonPath, t.copyJsonPathLabel);
             }
           }}
           onContextMenu={(e) => openNodeContextMenu(e, keyPath)}
@@ -683,7 +817,7 @@ export function App(): React.ReactElement {
         </span>
       );
     },
-    [copyText, openNodeContextMenu, searchQuery]
+    [copyText, openNodeContextMenu, searchQuery, t]
   );
 
   const valueRenderer: ValueRenderer = useCallback(
@@ -692,14 +826,14 @@ export function App(): React.ReactElement {
       return (
         <span
           className={getValueClassName(value)}
-          title={`路径: ${formatJsonPath(keyPath)}（右键复制路径或值）`}
+          title={t.valueTooltip(formatJsonPath(keyPath))}
           onContextMenu={(e) => openNodeContextMenu(e, keyPath)}
         >
           {renderHighlightedText(displayStr, searchQuery)}
         </span>
       );
     },
-    [openNodeContextMenu, searchQuery]
+    [openNodeContextMenu, searchQuery, t]
   );
 
   const treeRenderKey = `${expandMode}-${expandRevision}-${
@@ -711,7 +845,9 @@ export function App(): React.ReactElement {
       <header className="jtl-toolbar">
         <div className="jtl-toolbar-left">
           <span className="jtl-file-badge" title={fileName}>
-            {isDirty && <span className="jtl-dirty-dot" title="未保存的修改" />}
+            {isDirty && (
+              <span className="jtl-dirty-dot" title={t.unsavedChanges} />
+            )}
             <span>{fileName}</span>
           </span>
 
@@ -719,17 +855,17 @@ export function App(): React.ReactElement {
             <input
               type="text"
               className="jtl-search-input"
-              placeholder="搜索键名或值…"
+              placeholder={t.searchPlaceholder}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
             {searchInput && (
               <span className="jtl-search-meta">
-                <span>{searchIndex.matchCount} 处</span>
+                <span>{t.matchCount(searchIndex.matchCount)}</span>
                 <button
                   type="button"
                   className="jtl-search-clear"
-                  title="清空搜索"
+                  title={t.clearSearch}
                   onClick={() => {
                     setSearchInput('');
                     setSearchQuery('');
@@ -747,17 +883,17 @@ export function App(): React.ReactElement {
             type="button"
             className={`jtl-btn${expandMode === 'all' ? ' is-active' : ''}`}
             onClick={handleExpandAll}
-            title="展开所有节点"
+            title={t.expandAllTitle}
           >
-            全部展开
+            {t.expandAll}
           </button>
           <button
             type="button"
             className={`jtl-btn${expandMode === 'none' ? ' is-active' : ''}`}
             onClick={handleCollapseAll}
-            title="折叠所有节点"
+            title={t.collapseAllTitle}
           >
-            全部折叠
+            {t.collapseAll}
           </button>
 
           <span className="jtl-btn-divider" />
@@ -766,9 +902,9 @@ export function App(): React.ReactElement {
             type="button"
             className="jtl-btn"
             onClick={handleOpenSource}
-            title="切换回 VS Code 默认文本源码编辑器 (Ctrl+Alt+J / Cmd+Alt+J)"
+            title={t.backToSourceTitle(shortcutLabel)}
           >
-            切换回源码 (Ctrl+Alt+J)
+            {t.backToSource(shortcutLabel)}
           </button>
         </div>
       </header>
@@ -777,14 +913,14 @@ export function App(): React.ReactElement {
         <section className="jtl-error-banner" role="alert">
           <div className="jtl-error-header">
             <span className="jtl-error-title">
-              JSON 语法错误（第 {syntaxError.line} 行，第 {syntaxError.column} 列）
+              {t.syntaxErrorTitle(syntaxError.line, syntaxError.column)}
             </span>
             <button
               type="button"
               className="jtl-btn"
               onClick={handleOpenSource}
             >
-              前往源码修复
+              {t.fixInSource}
             </button>
           </div>
           <div className="jtl-error-detail">{syntaxError.message}</div>
@@ -793,11 +929,9 @@ export function App(): React.ReactElement {
       )}
 
       {!hasLoaded ? (
-        <div className="jtl-empty-state">正在加载 JSON 数据…</div>
+        <div className="jtl-empty-state">{t.loading}</div>
       ) : isEmptyFile ? (
-        <div className="jtl-empty-state">
-          当前 JSON 文件为空，可在源码视图中编辑后实时预览。
-        </div>
+        <div className="jtl-empty-state">{t.emptyFile}</div>
       ) : jsonData !== undefined ? (
         <main className="jtl-json-tree-container">
           <JSONTree
@@ -828,11 +962,11 @@ export function App(): React.ReactElement {
             type="button"
             className="jtl-context-item"
             onClick={() => {
-              copyText(contextMenu.jsonPath, 'JSON Path');
+              copyText(contextMenu.jsonPath, t.copyJsonPathLabel);
               setContextMenu(null);
             }}
           >
-            <span>复制 JSON Path</span>
+            <span>{t.copyJsonPath}</span>
             <span className="jtl-context-preview">
               {contextMenu.jsonPath}
             </span>
@@ -845,11 +979,11 @@ export function App(): React.ReactElement {
                 contextMenu.nodeValue === undefined
                   ? 'undefined'
                   : JSON.stringify(contextMenu.nodeValue, null, 2);
-              copyText(formattedValue, '节点值 (JSON)');
+              copyText(formattedValue, t.copyNodeValueLabel);
               setContextMenu(null);
             }}
           >
-            <span>复制节点值 (JSON)</span>
+            <span>{t.copyNodeValue}</span>
             <span className="jtl-context-preview">
               {typeof contextMenu.nodeValue === 'object' &&
               contextMenu.nodeValue !== null
@@ -864,11 +998,11 @@ export function App(): React.ReactElement {
               type="button"
               className="jtl-context-item"
               onClick={() => {
-                copyText(String(contextMenu.nodeValue), '纯文本值');
+                copyText(String(contextMenu.nodeValue), t.copyPlainTextLabel);
                 setContextMenu(null);
               }}
             >
-              <span>复制纯文本（无引号）</span>
+              <span>{t.copyPlainText}</span>
               <span className="jtl-context-preview">
                 {contextMenu.nodeValue}
               </span>
@@ -878,11 +1012,11 @@ export function App(): React.ReactElement {
             type="button"
             className="jtl-context-item"
             onClick={() => {
-              copyText(contextMenu.keyName, '键名');
+              copyText(contextMenu.keyName, t.copyKeyNameLabel);
               setContextMenu(null);
             }}
           >
-            <span>复制键名</span>
+            <span>{t.copyKeyName}</span>
             <span className="jtl-context-preview">{contextMenu.keyName}</span>
           </button>
         </div>

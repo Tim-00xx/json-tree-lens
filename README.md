@@ -1,31 +1,124 @@
-# JSON Tree Lens
+<div align="center">
+  <img src="icon.png" alt="JSON Tree Lens icon" width="96" height="96" />
 
-**English** | [简体中文](https://github.com/Tim-00xx/json-tree-lens/blob/main/README.zh-CN.md)
+  <h1>JSON Tree Lens</h1>
 
-A tree viewer for JSON that inherits your VS Code color theme natively. It uses a clean, colon-free layout with breathing room between keys and values, never replaces VS Code's built-in JSON text editor, and lets you switch between tree and source with one click.
+  <p>
+    <strong>A clean, native-themed JSON tree viewer for VS Code.</strong><br />
+    Colon-free breathing layout · One-click toggle · Instant search &amp; JSON Path copy · Never hijacks your default editor
+  </p>
 
-## Features
+  <p>
+    <a href="https://github.com/Tim-00xx/json-tree-lens/releases">
+      <img src="https://img.shields.io/badge/VS%20Code-%5E1.85.0-007acc?logo=visualstudiocode&logoColor=white" alt="VS Code ^1.85.0" />
+    </a>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License" />
+    </a>
+    <a href="https://github.com/Tim-00xx/json-tree-lens/releases">
+      <img src="https://img.shields.io/github/v/release/Tim-00xx/json-tree-lens?include_prereleases&label=Release" alt="GitHub Release" />
+    </a>
+  </p>
 
-- **Native VS Code theming**
-  - Follows your current light, dark, or high-contrast theme automatically — no manual toggle
-  - Clear syntax coloring for keys, strings, and numbers/booleans/null; sans-serif font at `13.5px` with `1.65` line height
-  - The default colon `:` after each key is hidden, leaving an `8px` breathing gap instead
-  - Readable collection badges: `[] N items` / `[] 1 item`, `{} N keys` / `{} 1 key`
-- **Fast interaction and switching**
-  - Press `Ctrl+Alt+J` (`Cmd+Alt+J` on macOS) to toggle between the **source editor** and the **tree view**
-  - Opens with the first 2 levels expanded; large arrays collapse automatically to keep the first paint fast
-  - Minimal fixed toolbar: search with highlighting, **Expand All**, **Collapse All**, and **Back to Source**
-  - Click a leaf key (or `Alt`-click any key) to copy its JSON Path (e.g. `cases[0].accept[0]`); the context menu copies the JSON Path, the node value, or the key name
-  - Watches the document and refreshes live; on invalid JSON it shows the exact line, column, and error reason at the top instead of a blank screen
+  <p>
+    <strong>English</strong> · <a href="https://github.com/Tim-00xx/json-tree-lens/blob/main/README.zh-CN.md">简体中文</a>
+  </p>
+</div>
 
-## Usage
+<p align="center">
+  <img src="assets/demo.gif" alt="JSON Tree Lens interactive demo: toggle between source and tree view, search with highlights, and copy JSON Path or plain text" width="860" />
+</p>
 
-1. Open any `.json` file in VS Code.
-2. Press **`Ctrl+Alt+J`** (macOS: **`Cmd+Alt+J`**), or click the `$(list-tree)` icon in the editor title bar, to switch to the tree view.
-3. Press **`Ctrl+Alt+J`** again, or click **Back to Source** in the toolbar / title bar, to return to the default text editor.
-4. To change the shortcut, open VS Code Keyboard Shortcuts and search for `JSON Tree Lens`.
+---
 
-## Localization
+## Native VS Code Theming
 
-- English (this page)
-- [简体中文 / Chinese (Simplified)](https://github.com/Tim-00xx/json-tree-lens/blob/main/README.zh-CN.md)
+Inherits your active VS Code color theme automatically (Dark, Light, and High Contrast) with zero configuration:
+
+<table>
+  <tr>
+    <th width="50%">Dark Theme</th>
+    <th width="50%">Light Theme</th>
+  </tr>
+  <tr>
+    <td><img src="assets/theme-dark.png" alt="JSON Tree Lens in Dark theme" /></td>
+    <td><img src="assets/theme-light.png" alt="JSON Tree Lens in Light theme" /></td>
+  </tr>
+</table>
+
+---
+
+## Why JSON Tree Lens?
+
+- **Non-intrusive by design** — Registered as an optional custom editor (`priority: "option"`), so VS Code still opens `.json` files in its built-in text editor by default. Switch to the tree view only when you want it.
+- **Readable colon-free layout** — Clean sans-serif typography (`13.5px`, `1.65` line height), distinct syntax coloring for keys / strings / primitives, hidden `:` colons with an `8px` breathing gap, and concise collection badges (`[] 3 items`, `{} 4 keys`).
+- **Fast search & smart folding** — Opens with the first 2 levels expanded and automatically collapses large arrays to keep first paint fast. Real-time search auto-expands matching branches and highlights every hit.
+- **One-click copy workflow** — Click any leaf key (or `Alt`-click any key) to copy its JSON Path (e.g. `endpoints[0].path`). Right-click any node to copy its **JSON Path**, **JSON Value**, **Plain Text (unquoted)**, or **Key Name**.
+- **Live sync & inline diagnostics** — Watches document edits in real time. When JSON has a syntax error, it keeps the last valid view intact and surfaces the exact line, column, error reason, and code caret at the top:
+
+<p align="center">
+  <img src="assets/error-banner.png" alt="Inline JSON syntax error banner with line, column, and code snippet" width="760" />
+</p>
+
+- **Automatic bilingual UI** — Toolbar, tooltips, and context menus follow VS Code's display language (English / Simplified Chinese) automatically.
+
+---
+
+## Installation
+
+### Option 1: Install from GitHub Releases (`.vsix`)
+
+1. Download the latest `.vsix` package from the [Releases](https://github.com/Tim-00xx/json-tree-lens/releases) page.
+2. Install it via CLI:
+   ```bash
+   code --install-extension json-tree-lens-1.0.1.vsix
+   ```
+   Or in VS Code, open the **Extensions** view (`Ctrl+Shift+X`), click `...` in the top-right corner, and choose **Install from VSIX...**.
+
+### Option 2: Build from Source
+
+```bash
+git clone https://github.com/Tim-00xx/json-tree-lens.git
+cd json-tree-lens
+npm install
+npm run package
+code --install-extension json-tree-lens-*.vsix
+```
+
+---
+
+## Usage & Shortcuts
+
+1. Open any `.json` file in VS Code (or right-click a `.json` file in the **Explorer** sidebar and choose **JSON Tree Lens: Open Tree View**).
+2. Press **`Ctrl+Alt+J`** (macOS: **`Cmd+Alt+J`**) or click the **Tree View** icon in the editor title bar to switch to the tree view.
+3. Press **`Ctrl+Alt+J`** (macOS: **`Cmd+Alt+J`**) again — or click **Back to Source** in the toolbar / title bar — to return to the text editor.
+
+| Action | Windows / Linux | macOS |
+| :--- | :--- | :--- |
+| Toggle Tree View / Source Editor | `Ctrl + Alt + J` | `Cmd + Alt + J` |
+| Open from File Explorer | Right-click `.json` → **Open Tree View** | Right-click `.json` → **Open Tree View** |
+| Copy JSON Path (leaf key) | Left-click key | Left-click key |
+| Copy JSON Path (any key) | `Alt + Click` key | `Option + Click` key |
+| Copy Path / Value / Plain Text / Key | Right-click any key or value | Right-click any key or value |
+
+> To customize the shortcut, open VS Code **Keyboard Shortcuts** and search for `JSON Tree Lens`.
+
+---
+
+## Development
+
+```bash
+npm install          # Install dependencies
+npm run watch        # Watch & rebuild extension + webview
+npm run typecheck    # Run TypeScript type checks
+npm run build        # Production bundle via esbuild
+npm run package      # Typecheck, build, and package .vsix
+```
+
+Press `F5` in VS Code to launch an Extension Development Host for interactive debugging.
+
+---
+
+## License
+
+[MIT](LICENSE)

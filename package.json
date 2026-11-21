@@ -2,7 +2,7 @@
   "name": "json-tree-lens",
   "displayName": "JSON Tree Lens",
   "description": "A clean, interactive tree viewer for JSON that inherits your VS Code color theme natively, with one-click toggle, JSON Path copying, and live sync.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "tim-00xx",
   "license": "MIT",
   "icon": "icon.png",

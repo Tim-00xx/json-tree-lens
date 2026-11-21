@@ -6,6 +6,16 @@ export const OPEN_COMMAND = 'jsonTreeLens.open';
 export const OPEN_SOURCE_COMMAND = 'jsonTreeLens.openSource';
 export const TOGGLE_COMMAND = 'jsonTreeLens.toggle';
 
+type Locale = 'en' | 'zh';
+
+function getUiLocale(): Locale {
+  return vscode.env.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+}
+
+function isMacPlatform(): boolean {
+  return process.platform === 'darwin';
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   const provider = new JsonTreeLensEditorProvider(context);
 
@@ -22,7 +32,11 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(OPEN_COMMAND, async (uri?: vscode.Uri) => {
       const targetUri = resolveTargetUri(uri);
       if (!targetUri) {
-        vscode.window.showWarningMessage('Please open or select a JSON file first.');
+        vscode.window.showWarningMessage(
+          getUiLocale() === 'zh'
+            ? '请先打开或选中一个 JSON 文件。'
+            : 'Please open or select a JSON file first.'
+        );
         return;
       }
       await vscode.commands.executeCommand('vscode.openWith', targetUri, VIEW_TYPE);
@@ -43,7 +57,11 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(TOGGLE_COMMAND, async (uri?: vscode.Uri) => {
       const targetUri = resolveTargetUri(uri);
       if (!targetUri) {
-        vscode.window.showWarningMessage('Please open or select a JSON file first.');
+        vscode.window.showWarningMessage(
+          getUiLocale() === 'zh'
+            ? '请先打开或选中一个 JSON 文件。'
+            : 'Please open or select a JSON file first.'
+        );
         return;
       }
       const activeInput = vscode.window.tabGroups.activeTabGroup.activeTab?.input;
@@ -111,6 +129,8 @@ class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
         text: document.getText(),
         fileName: path.basename(document.uri.fsPath || document.fileName),
         isDirty: document.isDirty,
+        locale: getUiLocale(),
+        isMac: isMacPlatform(),
       });
     };
 
@@ -150,9 +170,15 @@ class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
           }
           case 'copy': {
             await vscode.env.clipboard.writeText(message.text);
+            const isZh = getUiLocale() === 'zh';
+            const preview = truncatePreview(message.text, 48);
             const hint = message.label
-              ? `已复制 ${message.label}: ${truncatePreview(message.text, 48)}`
-              : `已复制: ${truncatePreview(message.text, 48)}`;
+              ? isZh
+                ? `已复制 ${message.label}: ${preview}`
+                : `Copied ${message.label}: ${preview}`
+              : isZh
+                ? `已复制: ${preview}`
+                : `Copied: ${preview}`;
             vscode.window.setStatusBarMessage(hint, 2500);
             break;
           }
@@ -182,9 +208,10 @@ class JsonTreeLensEditorProvider implements vscode.CustomTextEditorProvider {
       vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview.css')
     );
     const nonce = getNonce();
+    const htmlLang = getUiLocale() === 'zh' ? 'zh-CN' : 'en';
 
     return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${htmlLang}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
